@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPH Live Drop</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: transparent;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  .feed {
+    display: flex;
+    gap: 12px;
+    padding: 8px 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    height: 210px;
+    align-items: stretch;
+  }
+  .feed::-webkit-scrollbar { display: none; }
+
+  .card {
+    flex: 0 0 280px;
+    background: #0d1220;
+    border: 2px solid #1e2339;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideIn 0.4s ease;
+    transition: border-color 0.3s;
+  }
+
+  .card.high-value { border-color: #ff4f67; background: linear-gradient(135deg, #1a0a0e, #0d1220 60%); }
+  .card.mid-value  { border-color: #ffc700; background: linear-gradient(135deg, #1a1508, #0d1220 60%); }
+  .card.low-value  { border-color: #13cdff; background: linear-gradient(135deg, #081520, #0d1220 60%); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-30px) scale(0.95); }
+    to   { opacity: 1; transform: translateX(0) scale(1); }
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .card-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .card-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
+    background: #1e2339;
+  }
+
+  .card-username {
+    font-size: 12px;
+    font-weight: 600;
+    color: #b7bcdb;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  .card-multiplier {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .card-pf {
+    font-size: 10px;
+    color: #6b7194;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .card-pf.fire { color: #dd622d; }
+
+  .card-items {
+    display: flex;
+    flex: 1;
+    padding: 0 8px 8px;
+    gap: 6px;
+  }
+
+  .card-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .card-item-img {
+    width: 80px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+
+  .card-item-name {
+    font-size: 10px;
+    color: #8b90b0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1.2;
+  }
+
+  .card-item-price {
+    font-size: 12px;
+    font-weight: 700;
+    color: #21d07a;
+  }
+
+  .empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #6b7194;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="feed" id="feed">
+  <div class="empty" id="empty-msg">Aguardando resultados...</div>
+</div>
+
+<script>
+(function () {
+  var feed = document.getElementById('feed');
+  var emptyMsg = document.getElementById('empty-msg');
+  var MAX_CARDS = 20;
+
+  function getValueClass(multiplier) {
+    var val = parseFloat(multiplier);
+    if (isNaN(val)) return 'low-value';
+    if (val >= 5) return 'high-value';
+    if (val >= 2) return 'mid-value';
+    return 'low-value';
+  }
+
+  function createCard(entry) {
+    var card = document.createElement('div');
+    card.className = 'card ' + getValueClass(entry.multiplier);
+
+    var pfClass = entry.pfRoll && entry.pfRoll >= 9000000 ? ' fire' : '';
+    var pfText = entry.pfRoll ? String(Math.round(entry.pfRoll)) : '';
+
+    var fromHtml = '';
+    var toHtml = '';
+
+    if (entry.itemFrom) {
+      fromHtml = '<div class="card-item">'
+        + (entry.itemFrom.image ? '<img class="card-item-img" src="' + entry.itemFrom.image + '" alt="">' : '')
+        + '<div class="card-item-name">' + (entry.itemFrom.name || '') + '</div>'
+        + '<div class="card-item-price">$ ' + (entry.itemFrom.price || '0.00') + '</div>'
+        + '</div>';
+    }
+
+    if (entry.itemTo) {
+      toHtml = '<div class="card-item">'
+        + (entry.itemTo.image ? '<img class="card-item-img" src="' + entry.itemTo.image + '" alt="">' : '')
+        + '<div class="card-item-name">' + (entry.itemTo.name || '') + '</div>'
+        + '<div class="card-item-price">$ ' + (entry.itemTo.price || '0.00') + '</div>'
+        + '</div>';
+    }
+
+    card.innerHTML = '<div class="card-header">'
+      + '<div class="card-user">'
+      + (entry.avatar ? '<img class="card-avatar" src="' + entry.avatar + '" alt="">' : '<div class="card-avatar"></div>')
+      + '<span class="card-username">' + (entry.username || 'Anônimo') + '</span>'
+      + '</div>'
+      + '<div class="card-stats">'
+      + '<span class="card-multiplier">' + (entry.multiplier || '') + '</span>'
+      + (pfText ? '<span class="card-pf' + pfClass + '">' + pfText + '</span>' : '')
+      + '</div>'
+      + '</div>'
+      + '<div class="card-items">' + fromHtml + toHtml + '</div>';
+
+    return card;
+  }
+
+  function addCard(entry) {
+    if (emptyMsg) { emptyMsg.remove(); emptyMsg = null; }
+
+    var card = createCard(entry);
+    feed.insertBefore(card, feed.firstChild);
+
+    // Remove excess cards
+    while (feed.children.length > MAX_CARDS) {
+      feed.removeChild(feed.lastChild);
+    }
+  }
+
+  // Connect to Socket.IO
+  var socket = io({ transports: ['websocket', 'polling'] });
+
+  socket.on('connect', function () {
+    console.log('CPH LiveDrop connected');
+  });
+
+  socket.on('new-roll', function (entry) {
+    addCard(entry);
+  });
+
+  // Load existing rolls on page load
+  fetch('/api/rolls')
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data && data.length) {
+        // Reverse so oldest appears first, then newest slides in
+        data.slice().reverse().forEach(function (entry) {
+          addCard(entry);
+        });
+      }
+    })
+    .catch(function (err) {
+      console.error('Failed to load rolls:', err);
+    });
+})();
+</script>
+</body>
+</html>
