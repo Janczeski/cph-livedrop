@@ -16,24 +16,36 @@ app.use(express.static(path.join(__dirname, 'public')));
 const rolls = [];
 const MAX_ROLLS = 30;
 
+// Formata chance como porcentagem
+function formatChance(raw) {
+  if (!raw) return '';
+  const str = String(raw);
+  if (str.includes('%')) return str;
+  const num = parseFloat(str);
+  if (isNaN(num)) return str;
+  if (num > 0 && num <= 1) return (num * 100).toFixed(2) + '%';
+  if (num > 1 && num <= 100) return num.toFixed(2) + '%';
+  return str;
+}
+
 // API: receive a new roll from the extension
 app.post('/api/roll', (req, res) => {
-  const { pfRoll, userId, username, avatar, type, multiplier, itemFrom, itemTo } = req.body;
+  const { userId, type, username, avatar, multiplier, itemFrom, itemTo, pfRoll } = req.body;
 
-  if (!type || !username) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!type) {
+    return res.status(400).json({ error: 'Missing type' });
   }
 
   const entry = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-    pfRoll: pfRoll != null ? Number(pfRoll) : null,
     userId: String(userId || ''),
     username: String(username || 'Anônimo'),
     avatar: String(avatar || ''),
-    type: String(type),
-    multiplier: String(multiplier || ''),
+    type: String(type || 'upgrade'),
+    multiplier: formatChance(multiplier),
     itemFrom: itemFrom || null,
     itemTo: itemTo || null,
+    pfRoll: pfRoll != null ? Number(pfRoll) : null,
     timestamp: Date.now()
   };
 
@@ -43,6 +55,8 @@ app.post('/api/roll', (req, res) => {
   // Broadcast to all connected clients
   io.emit('new-roll', entry);
 
+  console.log('[API] Roll:', entry.username, entry.multiplier,
+    entry.itemFrom?.name || '?', '→', entry.itemTo?.name || '?');
   res.json({ ok: true });
 });
 
@@ -54,6 +68,11 @@ app.get('/api/rolls', (req, res) => {
 // Live drop page
 app.get('/live-drop', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'live-drop.html'));
+});
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ ok: true, rolls: rolls.length });
 });
 
 const PORT = process.env.PORT || 3000;
