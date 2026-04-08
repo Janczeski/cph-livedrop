@@ -30,7 +30,7 @@ function formatChance(raw) {
 
 // API: receive a new roll from the extension
 app.post('/api/roll', (req, res) => {
-  const { userId, type, username, avatar, multiplier, itemFrom, itemTo, pfRoll } = req.body;
+  const { userId, type, username, avatar, multiplier, itemFrom, itemTo, pfRoll, caseName, rarityColor } = req.body;
 
   if (!type) {
     return res.status(400).json({ error: 'Missing type' });
@@ -46,6 +46,8 @@ app.post('/api/roll', (req, res) => {
     itemFrom: itemFrom || null,
     itemTo: itemTo || null,
     pfRoll: pfRoll != null ? Number(pfRoll) : null,
+    caseName: String(caseName || ''),
+    rarityColor: String(rarityColor || ''),
     timestamp: Date.now()
   };
 
