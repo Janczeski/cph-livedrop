@@ -206,30 +206,28 @@
     return color;
   }
 
-  function getCardClass(entry) {
-    var rc = entry.rarityColor || (entry.itemTo && entry.itemTo.rarityColor) || '';
-    if (rc) return ''; // will use inline style
-    // fallback to value tiers
-    var val = parseFloat(entry.multiplier);
-    if (isNaN(val)) return 'low-value';
-    if (val >= 5) return 'high-value';
-    if (val >= 2) return 'mid-value';
-    return 'low-value';
-  }
-
-  function getInlineStyle(entry) {
-    var rc = entry.rarityColor || (entry.itemTo && entry.itemTo.rarityColor) || '';
-    if (!rc) return '';
-    var bgAlpha = colorToRgba(rc, 0.15);
-    return 'border-color: ' + rc + '; background: linear-gradient(135deg, ' + bgAlpha + ', #0d1220 60%);';
+  function getRarityClass(entry) {
+    var itemName = (entry.itemTo && entry.itemTo.name) ? entry.itemTo.name : '';
+    var toPrice = 0;
+    if (entry.itemTo && entry.itemTo.price) {
+      toPrice = parseFloat(String(entry.itemTo.price).replace(/[^0-9.,]/g, '').replace(',', '.')) || 0;
+    }
+    // Knives/gloves = gold
+    if (itemName.indexOf('\u2605') !== -1 || itemName.indexOf('Knife') !== -1 || itemName.indexOf('Gloves') !== -1 || itemName.indexOf('Bayonet') !== -1 || itemName.indexOf('Karambit') !== -1 || itemName.indexOf('Butterfly') !== -1 || itemName.indexOf('Talon') !== -1 || itemName.indexOf('Skeleton') !== -1 || itemName.indexOf('Navaja') !== -1 || itemName.indexOf('Stiletto') !== -1 || itemName.indexOf('Ursus') !== -1 || itemName.indexOf('Bowie') !== -1 || itemName.indexOf('Falchion') !== -1 || itemName.indexOf('Huntsman') !== -1 || itemName.indexOf('Gut Knife') !== -1 || itemName.indexOf('Flip Knife') !== -1 || itemName.indexOf('M9 Bayonet') !== -1 || itemName.indexOf('Kukri') !== -1) {
+      return 'rarity-gold';
+    }
+    if (toPrice >= 300) return 'rarity-gold';
+    if (toPrice >= 80) return 'rarity-covert';
+    if (toPrice >= 25) return 'rarity-classified';
+    if (toPrice >= 8) return 'rarity-restricted';
+    if (toPrice >= 2) return 'rarity-milspec';
+    if (toPrice >= 0.5) return 'rarity-industrial';
+    return 'rarity-consumer';
   }
 
   function createCard(entry) {
     var card = document.createElement('div');
-    var cls = getCardClass(entry);
-    card.className = 'card' + (cls ? ' ' + cls : '');
-    var inStyle = getInlineStyle(entry);
-    if (inStyle) card.setAttribute('style', inStyle);
+    card.className = 'card ' + getRarityClass(entry);
 
     var isCase = entry.type === 'case';
     var pfClass = entry.pfRoll && entry.pfRoll >= 9000000 ? ' fire' : '';
