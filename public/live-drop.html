@@ -20,38 +20,104 @@
     padding: 6px 10px;
     overflow-x: auto;
     scrollbar-width: none;
-    height: 200px;
+    height: 210px;
     align-items: stretch;
   }
   .feed::-webkit-scrollbar { display: none; }
 
+  /* ── Card base: frosted glass ── */
   .card {
-    flex: 0 0 290px;
-    border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
+    flex: 0 0 280px;
+    background: rgba(12, 15, 28, 0.80);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    animation: slideIn 0.35s ease;
+    animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .card:hover { transform: translateY(-3px); }
+
+  /* Neon accent strip — top edge */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 14px 14px 0 0;
+    z-index: 1;
   }
 
-  /* Rarity backgrounds — saturados */
-  .card.rarity-consumer    { background: linear-gradient(180deg, #3a4a5a 0%, #1e2a38 100%); border-color: rgba(176,195,217,0.4); }
-  .card.rarity-industrial  { background: linear-gradient(180deg, #1a3a5c 0%, #0e1e35 100%); border-color: rgba(94,152,217,0.5); }
-  .card.rarity-milspec     { background: linear-gradient(180deg, #1a2466 0%, #0d1333 100%); border-color: rgba(75,105,255,0.5); }
-  .card.rarity-restricted  { background: linear-gradient(180deg, #2d1566 0%, #160a33 100%); border-color: rgba(136,71,255,0.5); }
-  .card.rarity-classified  { background: linear-gradient(180deg, #5c0e66 0%, #2d0633 100%); border-color: rgba(211,44,230,0.5); }
-  .card.rarity-covert      { background: linear-gradient(180deg, #661a1a 0%, #330d0d 100%); border-color: rgba(235,75,75,0.5); box-shadow: 0 0 12px rgba(235,75,75,0.25); }
-  .card.rarity-gold        { background: linear-gradient(180deg, #665500 0%, #332a00 100%); border-color: rgba(255,215,0,0.6); box-shadow: 0 0 18px rgba(255,215,0,0.3); }
+  /* ── Rarity tiers: glow + accent strip ── */
+  .card.rarity-consumer    { box-shadow: 0 4px 20px rgba(176,195,217,0.07); }
+  .card.rarity-consumer::before    { background: linear-gradient(90deg, #b0c3d9, #8a9bb5); }
+
+  .card.rarity-industrial  { box-shadow: 0 4px 20px rgba(94,152,217,0.10); }
+  .card.rarity-industrial::before  { background: linear-gradient(90deg, #5e98d9, #3d7cc7); }
+
+  .card.rarity-milspec     { box-shadow: 0 4px 22px rgba(75,105,255,0.12); }
+  .card.rarity-milspec::before     { background: linear-gradient(90deg, #4b69ff, #3a52e0); }
+
+  .card.rarity-restricted  { box-shadow: 0 4px 22px rgba(136,71,255,0.14); }
+  .card.rarity-restricted::before  { background: linear-gradient(90deg, #8847ff, #6c2de0); }
+
+  .card.rarity-classified  { box-shadow: 0 4px 24px rgba(211,44,230,0.15); }
+  .card.rarity-classified::before  { background: linear-gradient(90deg, #d32ce6, #b018c7); }
+
+  .card.rarity-covert {
+    box-shadow: 0 4px 26px rgba(235,75,75,0.18);
+    border-color: rgba(235,75,75,0.10);
+  }
+  .card.rarity-covert::before { background: linear-gradient(90deg, #eb4b4b, #c73030); }
+  .card.rarity-covert:hover { box-shadow: 0 4px 32px rgba(235,75,75,0.28); }
+
+  .card.rarity-gold {
+    box-shadow: 0 4px 30px rgba(255,215,0,0.18), 0 0 50px rgba(255,215,0,0.05);
+    border-color: rgba(255,215,0,0.12);
+  }
+  .card.rarity-gold::before {
+    background: linear-gradient(90deg, #ffd700, #ffaa00, #ffd700);
+    animation: neonPulse 2s ease-in-out infinite;
+  }
+  .card.rarity-gold:hover { box-shadow: 0 4px 36px rgba(255,215,0,0.30), 0 0 60px rgba(255,215,0,0.08); }
+
+  /* Gold shimmer sweep */
+  .card.rarity-gold::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,215,0,0.05), transparent);
+    animation: sweep 3.5s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: 14px;
+  }
+
+  @keyframes neonPulse {
+    0%, 100% { opacity: 1; filter: brightness(1); }
+    50% { opacity: 0.7; filter: brightness(1.3); }
+  }
+
+  @keyframes sweep {
+    0% { left: -100%; }
+    100% { left: 200%; }
+  }
 
   .card-case-name {
-    font-size: 10px;
-    color: rgba(255,255,255,0.6);
+    font-size: 9px;
+    color: rgba(255,255,255,0.40);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 90px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
   }
 
   @keyframes slideIn {
@@ -63,36 +129,36 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 10px 4px;
-    gap: 6px;
+    padding: 10px 12px 6px;
+    gap: 8px;
   }
 
   .card-user {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     min-width: 0;
     flex: 1;
   }
 
   .card-avatar {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     flex-shrink: 0;
     object-fit: cover;
-    background: rgba(255,255,255,0.1);
-    border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.10);
   }
 
   .card-username {
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.88);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    letter-spacing: 0.2px;
   }
 
   .card-stats {
@@ -100,29 +166,34 @@
     flex-direction: column;
     align-items: flex-end;
     flex-shrink: 0;
-    gap: 1px;
+    gap: 2px;
   }
 
   .card-multiplier {
-    font-size: 16px;
-    font-weight: 800;
+    font-size: 15px;
+    font-weight: 700;
     color: #fff;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    letter-spacing: 0.3px;
   }
 
   .card-pf {
-    font-size: 11px;
-    color: rgba(255,255,255,0.55);
+    font-size: 10px;
+    color: rgba(255,255,255,0.30);
     font-variant-numeric: tabular-nums;
+    font-family: 'Consolas', 'SF Mono', 'Courier New', monospace;
+    letter-spacing: 0.5px;
   }
 
-  .card-pf.fire { color: #ff8c42; }
+  .card-pf.fire {
+    color: #ff7a30;
+    text-shadow: 0 0 8px rgba(255,122,48,0.45);
+  }
 
   .card-items {
     display: flex;
     flex: 1;
-    padding: 2px 8px 8px;
-    gap: 4px;
+    padding: 2px 10px 10px;
+    gap: 6px;
     align-items: center;
   }
 
@@ -131,35 +202,50 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     min-width: 0;
+    position: relative;
+  }
+
+  /* Arrow separator between items */
+  .card-items > .card-item:first-child:not(:last-child)::after {
+    content: '›';
+    position: absolute;
+    right: -9px;
+    top: 45%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: rgba(255,255,255,0.15);
+    font-weight: 200;
+    pointer-events: none;
   }
 
   .card-item-img {
-    width: 100px;
-    height: 70px;
+    width: 95px;
+    height: 65px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.35));
+    transition: transform 0.2s ease;
   }
+  .card:hover .card-item-img { transform: scale(1.05); }
 
   .card-item-name {
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.85);
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.60);
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
     line-height: 1.2;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   }
 
   .card-item-price {
-    font-size: 13px;
-    font-weight: 800;
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.90);
+    letter-spacing: 0.3px;
   }
 
   .empty {
@@ -168,8 +254,10 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    color: #6b7194;
-    font-size: 14px;
+    color: rgba(255,255,255,0.3);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
   }
 </style>
 </head>
