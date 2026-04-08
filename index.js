@@ -55,8 +55,8 @@ app.post('/api/roll', (req, res) => {
   // Broadcast to all connected clients
   io.emit('new-roll', entry);
 
-  console.log('[API] Roll:', entry.username, entry.multiplier,
-    entry.itemFrom?.name || '?', '→', entry.itemTo?.name || '?');
+  console.log('[API] Roll:', entry.type, entry.username, entry.multiplier || '',
+    entry.type === 'case' ? entry.itemTo?.name || '?' : (entry.itemFrom?.name || '?') + ' → ' + (entry.itemTo?.name || '?'));
   res.json({ ok: true });
 });
 
