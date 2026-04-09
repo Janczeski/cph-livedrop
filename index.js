@@ -75,6 +75,14 @@ app.delete('/api/rolls', (req, res) => {
   res.json({ ok: true, message: 'All rolls cleared' });
 });
 
+// Also support POST for clearing (some proxies block DELETE)
+app.post('/api/rolls/clear', (req, res) => {
+  rolls.length = 0;
+  io.emit('clear');
+  console.log('[API] All rolls cleared (POST)');
+  res.json({ ok: true, message: 'All rolls cleared' });
+});
+
 // Live drop page
 app.get('/live-drop', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'live-drop.html'));
