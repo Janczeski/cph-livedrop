@@ -147,7 +147,7 @@
     display: flex;
     flex: 1;
     min-height: 0;
-    padding: 4px 8px 10px;
+    padding: 2px 6px 8px;
     gap: 0;
     align-items: stretch;
   }
@@ -172,7 +172,7 @@
   }
 
   .card-item-img {
-    width: 90px; height: 60px;
+    width: 118px; height: 80px;
     object-fit: contain;
     filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
   }
@@ -278,7 +278,7 @@
     function itemHtml(item) {
       if (!item) return '<div class="card-item"></div>';
       return '<div class="card-item">'
-        + (item.image ? '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.display=\'none\'">' : '<div style="height:60px"></div>')
+        + (item.image ? '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.display=\'none\'">' : '<div style="height:80px"></div>')
         + '<div class="card-item-name">' + esc(item.name || '') + '</div>'
         + (item.price ? '<div class="card-item-price">$ ' + fmtPrice(item.price) + '</div>' : '')
         + '</div>';
