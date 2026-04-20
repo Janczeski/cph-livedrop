@@ -25,6 +25,319 @@
   }
   .feed::-webkit-scrollbar { display: none; }
 
+  /* ── Card base ── */
+  .card {
+    flex: 0 0 290px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideIn 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    border: 1.5px solid rgba(255,255,255,0.13);
+  }
+
+  /* ── Rarity gradients — strong, saturated ── */
+  .card.rarity-consumer   { background: linear-gradient(135deg, #1a2e44 0%, #0e1e30 100%); border-color: rgba(176,195,217,0.30); }
+  .card.rarity-industrial { background: linear-gradient(135deg, #0d2a50 0%, #071a38 100%); border-color: rgba(94,152,217,0.40); }
+  .card.rarity-milspec    { background: linear-gradient(135deg, #0f1f72 0%, #080e4a 100%); border-color: rgba(75,105,255,0.50); }
+  .card.rarity-restricted { background: linear-gradient(135deg, #2b0e70 0%, #170545 100%); border-color: rgba(140,70,255,0.55); }
+  .card.rarity-classified { background: linear-gradient(135deg, #5a0868 0%, #35044a 100%); border-color: rgba(220,50,240,0.55); }
+  .card.rarity-covert     { background: linear-gradient(135deg, #6e0a0a 0%, #420404 100%); border-color: rgba(240,60,60,0.55); }
+  .card.rarity-gold       { background: linear-gradient(135deg, #5c3a00 0%, #382100 100%); border-color: rgba(255,210,0,0.60); }
+
+  /* neon top-line */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 14px 14px 0 0;
+    z-index: 2;
+  }
+  .card.rarity-consumer::before   { background: linear-gradient(90deg,#8fa8bf,#6e8ba3); }
+  .card.rarity-industrial::before { background: linear-gradient(90deg,#5a9ad5,#3a7ab8); }
+  .card.rarity-milspec::before    { background: linear-gradient(90deg,#5070f0,#3050d5); }
+  .card.rarity-restricted::before { background: linear-gradient(90deg,#9a50ff,#6828e0); }
+  .card.rarity-classified::before { background: linear-gradient(90deg,#e040f0,#b020cc); }
+  .card.rarity-covert::before     { background: linear-gradient(90deg,#f04040,#c01818); }
+  .card.rarity-gold::before       { background: linear-gradient(90deg,#ffd700,#ffaa00,#ffd700); animation: neonPulse 2s ease-in-out infinite; }
+
+  /* gold shimmer */
+  .card.rarity-gold::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
+    animation: sweep 3s ease-in-out infinite;
+    pointer-events: none;
+    border-radius: 14px;
+    z-index: 1;
+  }
+
+  @keyframes neonPulse { 0%,100%{opacity:1;filter:brightness(1)} 50%{opacity:.7;filter:brightness(1.5)} }
+  @keyframes sweep { 0%{left:-100%} 100%{left:200%} }
+  @keyframes slideIn { from{opacity:0;transform:translateX(-28px) scale(0.95)} to{opacity:1;transform:translateX(0) scale(1)} }
+
+  /* ── Header ── */
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px 6px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .card-user {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .card-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.15);
+  }
+
+  .card-username {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+
+  .card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    gap: 1px;
+  }
+
+  .card-multiplier {
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    letter-spacing: 0.3px;
+    line-height: 1;
+  }
+
+  .card-pf {
+    font-size: 10px;
+    color: rgba(255,255,255,0.38);
+    font-family: 'Consolas', 'SF Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+  .card-pf.fire { color: #ff8030; text-shadow: 0 0 6px rgba(255,128,48,0.55); }
+
+  /* ── Body: two items + divider ── */
+  .card-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    padding: 4px 8px 10px;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .card-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 3px;
+    min-width: 0;
+    padding: 0 4px;
+  }
+
+  .card-divider {
+    width: 1px;
+    background: rgba(255,255,255,0.14);
+    margin: 4px 2px;
+    flex-shrink: 0;
+    border-radius: 1px;
+  }
+
+  .card-item-img {
+    width: 90px; height: 60px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+  }
+
+  .card-item-name {
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.72);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    line-height: 1.2;
+  }
+
+  .card-item-price {
+    font-size: 13px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.2px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+
+  .empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: rgba(255,255,255,0.3);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="feed" id="feed">
+  <div class="empty" id="empty-msg">Aguardando resultados...</div>
+</div>
+
+<script>
+(function () {
+  var feed = document.getElementById('feed');
+  var emptyMsg = document.getElementById('empty-msg');
+  var MAX_CARDS = 20;
+
+  function getRarityClass(entry) {
+    var name = (entry.itemTo && entry.itemTo.name) ? entry.itemTo.name : '';
+    var price = 0;
+    if (entry.itemTo && entry.itemTo.price) {
+      price = parseFloat(String(entry.itemTo.price).replace(/[^0-9.]/g, '')) || 0;
+    }
+    var knives = ['Knife','Gloves','Bayonet','Karambit','Butterfly','Talon','Skeleton','Navaja','Stiletto','Ursus','Bowie','Falchion','Huntsman','Gut Knife','Flip Knife','M9 Bayonet','Kukri','\u2605'];
+    for (var i = 0; i < knives.length; i++) { if (name.indexOf(knives[i]) !== -1) return 'rarity-gold'; }
+    if (price >= 300) return 'rarity-gold';
+    if (price >= 80)  return 'rarity-covert';
+    if (price >= 25)  return 'rarity-classified';
+    if (price >= 8)   return 'rarity-restricted';
+    if (price >= 2)   return 'rarity-milspec';
+    if (price >= 0.5) return 'rarity-industrial';
+    return 'rarity-consumer';
+  }
+
+  function fmtPrice(p) {
+    if (!p && p !== 0) return '0.00';
+    var n = parseFloat(String(p).replace(/[^0-9.]/g,'')) || 0;
+    return n.toFixed(2);
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function createCard(entry) {
+    var card = document.createElement('div');
+    card.className = 'card ' + getRarityClass(entry);
+
+    var isCase = entry.type === 'case';
+    var pfRaw = entry.pfRoll ? String(entry.pfRoll) : '';
+    var pfText = pfRaw ? (isNaN(Number(pfRaw)) ? pfRaw : String(Math.round(Number(pfRaw)))) : '';
+    var pfClass = pfText && Number(pfText) >= 9000000 ? ' fire' : '';
+    var multiplier = entry.multiplier || '';
+
+    // Header right: for case = PF only; for upgrade = % + PF
+    var rightHtml = '';
+    if (multiplier) rightHtml += '<span class="card-multiplier">' + esc(multiplier) + '</span>';
+    if (pfText)     rightHtml += '<span class="card-pf' + pfClass + '">' + esc(pfText) + '</span>';
+
+    // Left item: case image (case drop) OR item deposited (upgrade)
+    var leftItem = null;
+    if (isCase) {
+      leftItem = {
+        image: entry.caseImage || '',
+        name: entry.caseName ? entry.caseName.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}) : 'Case',
+        price: entry.casePrice || ''
+      };
+    } else if (entry.itemFrom) {
+      leftItem = entry.itemFrom;
+    }
+
+    function itemHtml(item) {
+      if (!item) return '<div class="card-item"></div>';
+      return '<div class="card-item">'
+        + (item.image ? '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.display=\'none\'">' : '<div style="height:60px"></div>')
+        + '<div class="card-item-name">' + esc(item.name || '') + '</div>'
+        + (item.price ? '<div class="card-item-price">$ ' + fmtPrice(item.price) + '</div>' : '')
+        + '</div>';
+    }
+
+    card.innerHTML =
+      '<div class="card-header">'
+      + '<div class="card-user">'
+      + (entry.avatar ? '<img class="card-avatar" src="' + esc(entry.avatar) + '" alt="" onerror="this.style.display=\'none\'">' : '<div class="card-avatar"></div>')
+      + '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>'
+      + '</div>'
+      + '<div class="card-right">' + rightHtml + '</div>'
+      + '</div>'
+      + '<div class="card-body">'
+      + itemHtml(leftItem)
+      + '<div class="card-divider"></div>'
+      + itemHtml(entry.itemTo)
+      + '</div>';
+
+    return card;
+  }
+
+  function addCard(entry) {
+    if (emptyMsg) { emptyMsg.remove(); emptyMsg = null; }
+    var card = createCard(entry);
+    feed.insertBefore(card, feed.firstChild);
+    while (feed.children.length > MAX_CARDS) feed.removeChild(feed.lastChild);
+  }
+
+  var socket = io({ transports: ['websocket', 'polling'] });
+  socket.on('new-roll', function (entry) { addCard(entry); });
+
+  fetch('/api/rolls')
+    .then(function(r){ return r.json(); })
+    .then(function(data){ if (data && data.length) data.slice().reverse().forEach(addCard); })
+    .catch(function(){});
+})();
+</script>
+</body>
+</html>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: transparent;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  .feed {
+    display: flex;
+    gap: 10px;
+    padding: 6px 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    height: 210px;
+    align-items: stretch;
+  }
+  .feed::-webkit-scrollbar { display: none; }
+
   /* ── Card base: frosted glass + rarity color ── */
   .card {
     flex: 0 0 280px;
