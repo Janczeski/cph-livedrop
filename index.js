@@ -128,4 +128,5 @@ app.get('/health', (req, res) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log('CPH LiveDrop server running on port ' + PORT);
+  console.log('Routes: POST /api/rolls (new) | POST /api/roll (legacy) | GET /live-drop');
 });
