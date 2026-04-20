@@ -28,7 +28,39 @@ function formatChance(raw) {
   return str;
 }
 
-// API: receive a new roll from the extension
+// API: receive a new roll (simplified format — from updated extension)
+app.post('/api/rolls', (req, res) => {
+  const { rollId, userId, type, streamer, username, avatar } = req.body;
+
+  if (!rollId || !userId) {
+    return res.status(400).json({ error: 'Missing rollId or userId' });
+  }
+
+  const entry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    userId: String(userId),
+    username: String(username || 'Anônimo'),
+    avatar: String(avatar || ''),
+    type: String(type || 'case'),
+    multiplier: '',
+    itemFrom: null,
+    itemTo: null,
+    pfRoll: null,
+    caseName: '',
+    rarityColor: '',
+    timestamp: Date.now()
+  };
+
+  rolls.unshift(entry);
+  if (rolls.length > MAX_ROLLS) rolls.length = MAX_ROLLS;
+
+  io.emit('new-roll', entry);
+
+  console.log('[API/rolls] ' + entry.type + ' | userId=' + entry.userId + ' | rollId=' + rollId);
+  res.json({ ok: true });
+});
+
+// API: receive a new roll from the extension (legacy format)
 app.post('/api/roll', (req, res) => {
   const { userId, type, username, avatar, multiplier, itemFrom, itemTo, pfRoll, caseName, rarityColor } = req.body;
 
