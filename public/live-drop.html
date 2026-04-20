@@ -177,6 +177,26 @@
     filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
   }
 
+  .card-item-img-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .card-extra-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0,0,0,0.72);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.22);
+    line-height: 1.4;
+    pointer-events: none;
+  }
+
   .card-item-name {
     font-size: 10px;
     font-weight: 500;
@@ -275,10 +295,19 @@
       leftItem = entry.itemFrom;
     }
 
-    function itemHtml(item) {
+    function itemHtml(item, extraCount) {
       if (!item) return '<div class="card-item"></div>';
+      var imgHtml = '';
+      if (item.image) {
+        imgHtml = '<div class="card-item-img-wrap">'
+          + '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.display=\'none\'">'
+          + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '')
+          + '</div>';
+      } else {
+        imgHtml = '<div style="height:80px"></div>';
+      }
       return '<div class="card-item">'
-        + (item.image ? '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.display=\'none\'">' : '<div style="height:80px"></div>')
+        + imgHtml
         + '<div class="card-item-name">' + esc(item.name || '') + '</div>'
         + (item.price ? '<div class="card-item-price">$ ' + fmtPrice(item.price) + '</div>' : '')
         + '</div>';
@@ -293,7 +322,7 @@
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
       + '<div class="card-body">'
-      + itemHtml(leftItem)
+      + itemHtml(leftItem, entry.extraItemsCount || 0)
       + '<div class="card-divider"></div>'
       + itemHtml(entry.itemTo)
       + '</div>';

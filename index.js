@@ -30,7 +30,7 @@ function formatChance(raw) {
 
 // API: receive a new roll (simplified format — from updated extension)
 app.post('/api/rolls', (req, res) => {
-  const { rollId, userId, type, streamer, username, avatar, itemTo, itemFrom, multiplier, caseName, caseImage, casePrice, pfRoll } = req.body;
+  const { rollId, userId, type, streamer, username, avatar, itemTo, itemFrom, extraItemsCount, multiplier, caseName, caseImage, casePrice, pfRoll } = req.body;
 
   if (!rollId || !userId) {
     return res.status(400).json({ error: 'Missing rollId or userId' });
@@ -44,6 +44,7 @@ app.post('/api/rolls', (req, res) => {
     type: String(type || 'case'),
     multiplier: multiplier || '',
     itemFrom: itemFrom || null,
+    extraItemsCount: extraItemsCount || 0,
     itemTo: itemTo || null,
     pfRoll: pfRoll || null,
     caseName: caseName || '',
