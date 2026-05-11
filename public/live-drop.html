@@ -197,6 +197,20 @@
     pointer-events: none;
   }
 
+  .card-coins-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+    width: 80px;
+    position: relative;
+  }
+  .card-coins-icon {
+    width: 56px;
+    height: 56px;
+    filter: drop-shadow(0 0 8px rgba(231,76,60,0.7));
+  }
+
   .card-item-name {
     font-size: 10px;
     font-weight: 500;
@@ -293,12 +307,25 @@
       };
     } else if (entry.itemFrom) {
       leftItem = entry.itemFrom;
+    } else if (!isCase) {
+      // Upgrade usando dinheiro/moedas — sem itemFrom, mostra ícone de moeda
+      leftItem = { image: '', name: 'Coins', price: '', _isCoins: true };
     }
 
     function itemHtml(item, extraCount) {
       if (!item) return '<div class="card-item"></div>';
       var imgHtml = '';
-      if (item.image) {
+      if (item._isCoins) {
+        // Ícone SVG de moeda para upgrades usando dinheiro
+        imgHtml = '<div class="card-item-img-wrap card-coins-wrap">'
+          + '<svg class="card-coins-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">'
+          + '<circle cx="32" cy="32" r="30" fill="#c0392b" stroke="#e74c3c" stroke-width="2"/>'
+          + '<circle cx="32" cy="32" r="24" fill="#e74c3c"/>'
+          + '<path d="M24 20 L40 20 L40 24 L34 24 L34 44 L30 44 L30 24 L24 24 Z" fill="white"/>'
+          + '</svg>'
+          + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '')
+          + '</div>';
+      } else if (item.image) {
         imgHtml = '<div class="card-item-img-wrap">'
           + '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.visibility=\'hidden\'">'
           + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '')
