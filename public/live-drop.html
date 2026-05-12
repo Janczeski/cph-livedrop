@@ -308,24 +308,14 @@
     } else if (entry.itemFrom) {
       leftItem = entry.itemFrom;
     } else if (!isCase) {
-      // Upgrade usando dinheiro/moedas — sem itemFrom, mostra ícone de moeda
-      leftItem = { image: '', name: 'Coins', price: '', _isCoins: true };
+      // Upgrade usando dinheiro/moedas — usa imagem real do csgo.net
+      leftItem = { image: 'https://csgo.net/public/img/other/upgrade/balance.png?v=5', name: 'Coins', price: '' };
     }
 
     function itemHtml(item, extraCount) {
       if (!item) return '<div class="card-item"></div>';
       var imgHtml = '';
-      if (item._isCoins || item.name === 'Coins') {
-        // Ícone SVG de moeda para upgrades usando dinheiro
-        imgHtml = '<div class="card-item-img-wrap card-coins-wrap">'
-          + '<svg class="card-coins-icon" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" width="56" height="56" style="display:block">'
-          + '<circle cx="32" cy="32" r="30" fill="#c0392b" stroke="#e74c3c" stroke-width="2"/>'
-          + '<circle cx="32" cy="32" r="24" fill="#e74c3c"/>'
-          + '<text x="32" y="44" text-anchor="middle" font-size="30" font-weight="bold" fill="white" font-family="Arial,sans-serif">$</text>'
-          + '</svg>'
-          + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '')
-          + '</div>';
-      } else if (item.image) {
+      if (item.image) {
         imgHtml = '<div class="card-item-img-wrap">'
           + '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.visibility=\'hidden\'">'
           + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '')
