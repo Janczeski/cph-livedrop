@@ -12,9 +12,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Store last 30 rolls in memory
+// Store last 50 rolls in memory
 const rolls = [];
-const MAX_ROLLS = 30;
+const MAX_ROLLS = 50;
 
 // Formata chance como porcentagem
 function formatChance(raw) {
