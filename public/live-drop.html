@@ -107,7 +107,7 @@
     border: 1.5px solid rgba(255,255,255,0.15);
   }
 
-  .card-username {
+  .card-username, a.card-username {
     font-size: 12px;
     font-weight: 700;
     color: #fff;
@@ -115,6 +115,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
     text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    text-decoration: none;
+  }
+  a.card-username:hover { text-decoration: underline; }
+  a.card-item-img-wrap {
+    display: inline-flex;
+    position: relative;
   }
 
   .card-right {
@@ -303,7 +309,8 @@
       leftItem = {
         image: entry.caseImage || '',
         name: entry.caseName ? entry.caseName.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}) : 'Case',
-        price: entry.casePrice || ''
+        price: entry.casePrice || '',
+        linkUrl: entry.caseName ? 'https://csgo.net/case/' + entry.caseName : ''
       };
     } else if (entry.itemFrom) {
       leftItem = entry.itemFrom;
@@ -316,10 +323,13 @@
       if (!item) return '<div class="card-item"></div>';
       var imgHtml = '';
       if (item.image) {
-        imgHtml = '<div class="card-item-img-wrap">'
-          + '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.visibility=\'hidden\'">'
-          + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '')
-          + '</div>';
+        var imgContent = '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.visibility=\'hidden\'">'
+          + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '');
+        if (item.linkUrl) {
+          imgHtml = '<a class="card-item-img-wrap" href="' + esc(item.linkUrl) + '" target="_blank" rel="noopener">' + imgContent + '</a>';
+        } else {
+          imgHtml = '<div class="card-item-img-wrap">' + imgContent + '</div>';
+        }
       } else {
         imgHtml = '<div style="height:80px"></div>';
       }
@@ -334,7 +344,7 @@
       '<div class="card-header">'
       + '<div class="card-user">'
       + (entry.avatar ? '<img class="card-avatar" src="' + esc(entry.avatar) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '<div class="card-avatar"></div>')
-      + '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>'
+      + (entry.userId ? '<a class="card-username" href="https://csgo.net/profile/' + esc(entry.userId) + '" target="_blank" rel="noopener">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
       + '</div>'
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
@@ -355,7 +365,8 @@
   }
 
   var socket = io({ transports: ['websocket', 'polling'] });
-  socket.on('new-roll', function (entry) { addCard(entry); });
+  // 6s delay on live cards to avoid spoilers for stream viewers
+  socket.on('new-roll', function (entry) { setTimeout(function() { addCard(entry); }, 6000); });
 
   // Keep-alive: ping server every 8 min to prevent Render free-tier spindown
   setInterval(function() { fetch('/health').catch(function(){}); }, 8 * 60 * 1000);
