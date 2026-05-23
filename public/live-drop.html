@@ -344,7 +344,7 @@
       '<div class="card-header">'
       + '<div class="card-user">'
       + (entry.avatar ? '<img class="card-avatar" src="' + esc(entry.avatar) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '<div class="card-avatar"></div>')
-      + (entry.userId ? '<a class="card-username" href="https://csgo.net/profile/' + esc(entry.userId) + '" target="_blank" rel="noopener">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
+      + (entry.userId ? '<a class="card-username" href="https://csgo.net/user/' + esc(entry.userId) + '" target="_blank" rel="noopener">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
       + '</div>'
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
