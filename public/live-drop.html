@@ -118,6 +118,7 @@
     text-decoration: none;
   }
   a.card-username:hover { text-decoration: underline; }
+  a.card-username, a.card-item-img-wrap { cursor: pointer; pointer-events: auto; }
   a.card-item-img-wrap {
     display: inline-flex;
     position: relative;
@@ -367,6 +368,14 @@
   var socket = io({ transports: ['websocket', 'polling'] });
   // 6s delay on live cards to avoid spoilers for stream viewers
   socket.on('new-roll', function (entry) { setTimeout(function() { addCard(entry); }, 6000); });
+
+  // Fallback for embedded browsers: force opening links in a new tab/window.
+  document.addEventListener('click', function (ev) {
+    var a = ev.target && ev.target.closest ? ev.target.closest('a.card-username, a.card-item-img-wrap') : null;
+    if (!a || !a.href) return;
+    ev.preventDefault();
+    try { window.open(a.href, '_blank', 'noopener'); } catch (_) {}
+  });
 
   // Keep-alive: ping server every 8 min to prevent Render free-tier spindown
   setInterval(function() { fetch('/health').catch(function(){}); }, 8 * 60 * 1000);
