@@ -39,6 +39,7 @@ app.post('/api/rolls', (req, res) => {
   const entry = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     userId: String(userId),
+    profileUrl: 'https://csgo.net/br/user/' + String(userId),
     username: String(username || 'Anônimo'),
     avatar: String(avatar || ''),
     type: String(type || 'case'),
@@ -48,6 +49,7 @@ app.post('/api/rolls', (req, res) => {
     itemTo: itemTo || null,
     pfRoll: pfRoll || null,
     caseName: caseName || '',
+    caseUrl: caseName ? 'https://csgo.net/br/case/' + String(caseName) : '',
     caseImage: caseImage || '',
     casePrice: casePrice || '',
     rarityColor: '',
@@ -74,6 +76,7 @@ app.post('/api/roll', (req, res) => {
   const entry = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     userId: String(userId || ''),
+    profileUrl: userId ? 'https://csgo.net/br/user/' + String(userId) : '',
     username: String(username || 'Anônimo'),
     avatar: String(avatar || ''),
     type: String(type || 'upgrade'),
@@ -82,6 +85,7 @@ app.post('/api/roll', (req, res) => {
     itemTo: itemTo || null,
     pfRoll: pfRoll != null ? Number(pfRoll) : null,
     caseName: String(caseName || ''),
+    caseUrl: caseName ? 'https://csgo.net/br/case/' + String(caseName) : '',
     rarityColor: String(rarityColor || ''),
     timestamp: Date.now()
   };

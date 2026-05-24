@@ -299,6 +299,14 @@
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  function slugify(text) {
+    return String(text || '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^A-Za-z0-9\-_.]/g, '')
+      .replace(/-+/g, '-');
+  }
+
   function createCard(entry) {
     var card = document.createElement('div');
     card.className = 'card ' + getRarityClass(entry);
@@ -317,14 +325,18 @@
     // Left item: case image (case drop) OR item deposited (upgrade)
     var leftItem = null;
     if (isCase) {
+      var caseLink = entry.caseUrl || (entry.caseName ? 'https://csgo.net/br/case/' + entry.caseName : '');
       leftItem = {
         image: entry.caseImage || '',
         name: entry.caseName ? entry.caseName.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}) : 'Case',
         price: entry.casePrice || '',
-        linkUrl: entry.caseName ? 'https://csgo.net/br/case/' + entry.caseName : ''
+        linkUrl: caseLink
       };
     } else if (entry.itemFrom) {
-      leftItem = entry.itemFrom;
+      leftItem = Object.assign({}, entry.itemFrom);
+      if (!leftItem.linkUrl && leftItem.image && leftItem.name) {
+        leftItem.linkUrl = entry.caseUrl || ('https://csgo.net/br/case/' + slugify(leftItem.name));
+      }
     } else if (!isCase) {
       // Upgrade usando dinheiro/moedas — usa imagem real do csgo.net
       leftItem = { image: 'https://csgo.net/public/img/other/upgrade/balance.png?v=5', name: 'Coins', price: '' };
@@ -355,7 +367,7 @@
       '<div class="card-header">'
       + '<div class="card-user">'
       + (entry.avatar ? '<img class="card-avatar" src="' + esc(entry.avatar) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '<div class="card-avatar"></div>')
-      + (entry.userId ? '<a class="card-username" href="https://csgo.net/br/user/' + esc(entry.userId) + '" target="_blank" rel="noopener noreferrer" onclick="return openExternalUrl(this.href)">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
+      + ((entry.profileUrl || entry.userId) ? '<a class="card-username" href="' + esc(entry.profileUrl || ('https://csgo.net/br/user/' + entry.userId)) + '" target="_blank" rel="noopener noreferrer" onclick="return openExternalUrl(this.href)">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
       + '</div>'
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
