@@ -122,15 +122,18 @@ app.post('/api/rolls/clear', (req, res) => {
   res.json({ ok: true, message: 'All rolls cleared' });
 });
 
-// Live drop page
-app.get('/live-drop', (req, res) => {
+function sendLiveDropPage(req, res) {
   res.set({
     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
     'Pragma': 'no-cache',
     'Expires': '0'
   });
   res.sendFile(path.join(__dirname, 'public', 'live-drop.html'));
-});
+}
+
+// Live drop page
+app.get('/live-drop', sendLiveDropPage);
+app.get('/live-drop-v291', sendLiveDropPage);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -267,7 +267,9 @@
     try {
       window.open(url, '_blank', 'noopener,noreferrer');
     } catch (e) {
-      try { window.location.href = url; } catch (_) {}
+      try { window.top.location.href = url; } catch (_) {
+        try { window.location.href = url; } catch (__){ }
+      }
     }
     return false;
   };
