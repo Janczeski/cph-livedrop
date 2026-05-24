@@ -278,6 +278,8 @@
     return window.openExternalUrl(url);
   }
 
+  window.cphOpenUrlFromData = cphOpenUrlFromData;
+
   function getRarityClass(entry) {
     var name = (entry.itemTo && entry.itemTo.name) ? entry.itemTo.name : '';
     var price = 0;
@@ -355,7 +357,7 @@
         var imgContent = '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.visibility=\'hidden\'">'
           + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '');
         if (item.linkUrl) {
-          imgHtml = '<div class="card-item-img-wrap" data-case-url="' + esc(item.linkUrl) + '" role="link" tabindex="0">' + imgContent + '</div>';
+          imgHtml = '<div class="card-item-img-wrap" data-case-url="' + esc(item.linkUrl) + '" role="link" tabindex="0" onclick="return cphOpenUrlFromData(this)">' + imgContent + '</div>';
         } else {
           imgHtml = '<div class="card-item-img-wrap">' + imgContent + '</div>';
         }
@@ -373,7 +375,7 @@
       '<div class="card-header">'
       + '<div class="card-user">'
       + (entry.avatar ? '<img class="card-avatar" src="' + esc(entry.avatar) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '<div class="card-avatar"></div>')
-      + ((entry.profileUrl || entry.userId) ? '<span class="card-username" data-profile-url="' + esc(entry.profileUrl || ('https://csgo.net/br/user/' + entry.userId)) + '" role="link" tabindex="0">' + esc(entry.username || 'Anônimo') + '</span>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
+      + ((entry.profileUrl || entry.userId) ? '<span class="card-username" data-profile-url="' + esc(entry.profileUrl || ('https://csgo.net/br/user/' + entry.userId)) + '" role="link" tabindex="0" onclick="return cphOpenUrlFromData(this)">' + esc(entry.username || 'Anônimo') + '</span>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
       + '</div>'
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
