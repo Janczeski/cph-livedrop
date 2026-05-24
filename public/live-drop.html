@@ -117,12 +117,13 @@
     text-shadow: 0 1px 4px rgba(0,0,0,0.6);
     text-decoration: none;
   }
-  a.card-username:hover { text-decoration: underline; }
+  a.card-username:hover { text-decoration: underline; color: #ffcf73; }
   a.card-username, a.card-item-img-wrap { cursor: pointer; pointer-events: auto; }
   a.card-item-img-wrap {
     display: inline-flex;
     position: relative;
   }
+  a.card-item-img-wrap:hover .card-item-img { transform: scale(1.04); }
 
   .card-right {
     display: flex;
@@ -262,6 +263,15 @@
   var emptyMsg = document.getElementById('empty-msg');
   var MAX_CARDS = 20;
 
+  window.openExternalUrl = function (url) {
+    try {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (e) {
+      try { window.location.href = url; } catch (_) {}
+    }
+    return false;
+  };
+
   function getRarityClass(entry) {
     var name = (entry.itemTo && entry.itemTo.name) ? entry.itemTo.name : '';
     var price = 0;
@@ -327,7 +337,7 @@
         var imgContent = '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.visibility=\'hidden\'">'
           + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '');
         if (item.linkUrl) {
-          imgHtml = '<a class="card-item-img-wrap" href="' + esc(item.linkUrl) + '" target="_blank" rel="noopener">' + imgContent + '</a>';
+          imgHtml = '<a class="card-item-img-wrap" href="' + esc(item.linkUrl) + '" target="_blank" rel="noopener noreferrer" onclick="return openExternalUrl(this.href)">' + imgContent + '</a>';
         } else {
           imgHtml = '<div class="card-item-img-wrap">' + imgContent + '</div>';
         }
@@ -345,7 +355,7 @@
       '<div class="card-header">'
       + '<div class="card-user">'
       + (entry.avatar ? '<img class="card-avatar" src="' + esc(entry.avatar) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '<div class="card-avatar"></div>')
-      + (entry.userId ? '<a class="card-username" href="https://csgo.net/user/' + esc(entry.userId) + '" target="_blank" rel="noopener">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
+      + (entry.userId ? '<a class="card-username" href="https://csgo.net/user/' + esc(entry.userId) + '" target="_blank" rel="noopener noreferrer" onclick="return openExternalUrl(this.href)">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
       + '</div>'
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
