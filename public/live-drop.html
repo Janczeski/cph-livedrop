@@ -321,7 +321,7 @@
         image: entry.caseImage || '',
         name: entry.caseName ? entry.caseName.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}) : 'Case',
         price: entry.casePrice || '',
-        linkUrl: entry.caseName ? 'https://csgo.net/case/' + entry.caseName : ''
+        linkUrl: entry.caseName ? 'https://csgo.net/br/case/' + entry.caseName : ''
       };
     } else if (entry.itemFrom) {
       leftItem = entry.itemFrom;
@@ -355,7 +355,7 @@
       '<div class="card-header">'
       + '<div class="card-user">'
       + (entry.avatar ? '<img class="card-avatar" src="' + esc(entry.avatar) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '<div class="card-avatar"></div>')
-      + (entry.userId ? '<a class="card-username" href="https://csgo.net/user/' + esc(entry.userId) + '" target="_blank" rel="noopener noreferrer" onclick="return openExternalUrl(this.href)">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
+      + (entry.userId ? '<a class="card-username" href="https://csgo.net/br/user/' + esc(entry.userId) + '" target="_blank" rel="noopener noreferrer" onclick="return openExternalUrl(this.href)">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
       + '</div>'
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
