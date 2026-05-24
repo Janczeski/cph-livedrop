@@ -117,13 +117,13 @@
     text-shadow: 0 1px 4px rgba(0,0,0,0.6);
     text-decoration: none;
   }
-  a.card-username:hover { text-decoration: underline; color: #ffcf73; }
-  a.card-username, a.card-item-img-wrap { cursor: pointer; pointer-events: auto; }
-  a.card-item-img-wrap {
+  .card-username[data-profile-url]:hover { text-decoration: underline; color: #ffcf73; }
+  .card-username[data-profile-url], .card-item-img-wrap[data-case-url] { cursor: pointer; pointer-events: auto; }
+  .card-item-img-wrap {
     display: inline-flex;
     position: relative;
   }
-  a.card-item-img-wrap:hover .card-item-img { transform: scale(1.04); }
+  .card-item-img-wrap[data-case-url]:hover .card-item-img { transform: scale(1.04); }
 
   .card-right {
     display: flex;
@@ -272,6 +272,12 @@
     return false;
   };
 
+  function cphOpenUrlFromData(el) {
+    var url = el && (el.dataset.profileUrl || el.dataset.caseUrl);
+    if (!url) return false;
+    return window.openExternalUrl(url);
+  }
+
   function getRarityClass(entry) {
     var name = (entry.itemTo && entry.itemTo.name) ? entry.itemTo.name : '';
     var price = 0;
@@ -349,7 +355,7 @@
         var imgContent = '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.visibility=\'hidden\'">'
           + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '');
         if (item.linkUrl) {
-          imgHtml = '<a class="card-item-img-wrap" href="' + esc(item.linkUrl) + '" target="_blank" rel="noopener noreferrer" onclick="return openExternalUrl(this.href)">' + imgContent + '</a>';
+          imgHtml = '<div class="card-item-img-wrap" data-case-url="' + esc(item.linkUrl) + '" role="link" tabindex="0">' + imgContent + '</div>';
         } else {
           imgHtml = '<div class="card-item-img-wrap">' + imgContent + '</div>';
         }
@@ -367,7 +373,7 @@
       '<div class="card-header">'
       + '<div class="card-user">'
       + (entry.avatar ? '<img class="card-avatar" src="' + esc(entry.avatar) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '<div class="card-avatar"></div>')
-      + ((entry.profileUrl || entry.userId) ? '<a class="card-username" href="' + esc(entry.profileUrl || ('https://csgo.net/br/user/' + entry.userId)) + '" target="_blank" rel="noopener noreferrer" onclick="return openExternalUrl(this.href)">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
+      + ((entry.profileUrl || entry.userId) ? '<span class="card-username" data-profile-url="' + esc(entry.profileUrl || ('https://csgo.net/br/user/' + entry.userId)) + '" role="link" tabindex="0">' + esc(entry.username || 'Anônimo') + '</span>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
       + '</div>'
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
@@ -391,12 +397,20 @@
   // 6s delay on live cards to avoid spoilers for stream viewers
   socket.on('new-roll', function (entry) { setTimeout(function() { addCard(entry); }, 6000); });
 
-  // Fallback for embedded browsers: force opening links in a new tab/window.
+  // Click delegation for browsers that do not treat the card markup as a normal link.
   document.addEventListener('click', function (ev) {
-    var a = ev.target && ev.target.closest ? ev.target.closest('a.card-username, a.card-item-img-wrap') : null;
-    if (!a || !a.href) return;
+    var target = ev.target && ev.target.closest ? ev.target.closest('[data-profile-url], [data-case-url]') : null;
+    if (!target) return;
     ev.preventDefault();
-    try { window.open(a.href, '_blank', 'noopener'); } catch (_) {}
+    cphOpenUrlFromData(target);
+  }, true);
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    var target = ev.target && ev.target.closest ? ev.target.closest('[data-profile-url], [data-case-url]') : null;
+    if (!target) return;
+    ev.preventDefault();
+    cphOpenUrlFromData(target);
   });
 
   // Keep-alive: ping server every 8 min to prevent Render free-tier spindown
