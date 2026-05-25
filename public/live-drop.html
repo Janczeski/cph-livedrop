@@ -117,13 +117,13 @@
     text-shadow: 0 1px 4px rgba(0,0,0,0.6);
     text-decoration: none;
   }
-  .card-username[data-profile-url]:hover { text-decoration: underline; color: #ffcf73; }
-  .card-username[data-profile-url], .card-item-img-wrap[data-case-url] { cursor: pointer; pointer-events: auto; }
+  a.card-username:hover { text-decoration: underline; color: #ffcf73; }
+  .card-username, .card-item-link { cursor: pointer; pointer-events: auto; }
   .card-item-img-wrap {
     display: inline-flex;
     position: relative;
   }
-  .card-item-img-wrap[data-case-url]:hover .card-item-img { transform: scale(1.04); }
+  .card-item-img-wrap:hover .card-item-img { transform: scale(1.04); }
 
   .card-right {
     display: flex;
@@ -149,6 +149,19 @@
     letter-spacing: 0.5px;
   }
   .card-pf.fire { color: #ff8030; text-shadow: 0 0 6px rgba(255,128,48,0.55); }
+
+  .card-item-fire {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 86px;
+    height: 34px;
+    object-fit: cover;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.88;
+  }
 
   /* ── Body: two items + divider ── */
   .card-body {
@@ -263,25 +276,6 @@
   var emptyMsg = document.getElementById('empty-msg');
   var MAX_CARDS = 20;
 
-  window.openExternalUrl = function (url) {
-    try {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } catch (e) {
-      try { window.top.location.href = url; } catch (_) {
-        try { window.location.href = url; } catch (__){ }
-      }
-    }
-    return false;
-  };
-
-  function cphOpenUrlFromData(el) {
-    var url = el && (el.dataset.profileUrl || el.dataset.caseUrl);
-    if (!url) return false;
-    return window.openExternalUrl(url);
-  }
-
-  window.cphOpenUrlFromData = cphOpenUrlFromData;
-
   function getRarityClass(entry) {
     var name = (entry.itemTo && entry.itemTo.name) ? entry.itemTo.name : '';
     var price = 0;
@@ -352,23 +346,25 @@
       leftItem = { image: 'https://csgo.net/public/img/other/upgrade/balance.png?v=5', name: 'Coins', price: '' };
     }
 
-    function itemHtml(item, extraCount) {
+    function itemHtml(item, extraCount, isFire) {
       if (!item) return '<div class="card-item"></div>';
       var imgHtml = '';
+      var nameHtml = '<div class="card-item-name">' + esc(item.name || '') + '</div>';
+      var fireOverlay = isFire ? '<img class="card-item-fire" src="/public/video/fire_orange.webp?v=3" alt="">' : '';
       if (item.image) {
         var imgContent = '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.visibility=\'hidden\'">'
           + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '');
         if (item.linkUrl) {
-          imgHtml = '<div class="card-item-img-wrap" data-case-url="' + esc(item.linkUrl) + '" role="link" tabindex="0" onclick="return cphOpenUrlFromData(this)">' + imgContent + '</div>';
+          imgHtml = '<a class="card-item-img-wrap card-item-link card-open-link" href="' + esc(item.linkUrl) + '" target="_blank" rel="noopener noreferrer" style="display:block;">' + imgContent + fireOverlay + '</a>';
         } else {
-          imgHtml = '<div class="card-item-img-wrap">' + imgContent + '</div>';
+          imgHtml = '<div class="card-item-img-wrap">' + imgContent + fireOverlay + '</div>';
         }
       } else {
         imgHtml = '<div style="height:80px"></div>';
       }
       return '<div class="card-item">'
         + imgHtml
-        + '<div class="card-item-name">' + esc(item.name || '') + '</div>'
+        + (item.linkUrl ? '<a class="card-item-name card-item-link card-open-link" href="' + esc(item.linkUrl) + '" target="_blank" rel="noopener noreferrer" style="display:block;color:inherit;text-decoration:none;">' + esc(item.name || '') + '</a>' : nameHtml)
         + (item.price ? '<div class="card-item-price">$ ' + fmtPrice(item.price) + '</div>' : '')
         + '</div>';
     }
@@ -377,14 +373,14 @@
       '<div class="card-header">'
       + '<div class="card-user">'
       + (entry.avatar ? '<img class="card-avatar" src="' + esc(entry.avatar) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '<div class="card-avatar"></div>')
-      + ((entry.profileUrl || entry.userId) ? '<span class="card-username" data-profile-url="' + esc(entry.profileUrl || ('https://csgo.net/br/user/' + entry.userId)) + '" role="link" tabindex="0" onclick="return cphOpenUrlFromData(this)">' + esc(entry.username || 'Anônimo') + '</span>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
+      + ((entry.profileUrl || entry.userId) ? '<a class="card-username card-open-link" href="' + esc(entry.profileUrl || ('https://csgo.net/br/user/' + entry.userId)) + '" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">' + esc(entry.username || 'Anônimo') + '</a>' : '<span class="card-username">' + esc(entry.username || 'Anônimo') + '</span>')
       + '</div>'
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
       + '<div class="card-body">'
       + itemHtml(leftItem, entry.extraItemsCount || 0)
       + '<div class="card-divider"></div>'
-      + itemHtml(entry.itemTo)
+      + itemHtml(entry.itemTo, 0, pfClass.indexOf('fire') !== -1);
       + '</div>';
 
     return card;
@@ -400,22 +396,6 @@
   var socket = io({ transports: ['websocket', 'polling'] });
   // 6s delay on live cards to avoid spoilers for stream viewers
   socket.on('new-roll', function (entry) { setTimeout(function() { addCard(entry); }, 6000); });
-
-  // Click delegation for browsers that do not treat the card markup as a normal link.
-  document.addEventListener('click', function (ev) {
-    var target = ev.target && ev.target.closest ? ev.target.closest('[data-profile-url], [data-case-url]') : null;
-    if (!target) return;
-    ev.preventDefault();
-    cphOpenUrlFromData(target);
-  }, true);
-
-  document.addEventListener('keydown', function (ev) {
-    if (ev.key !== 'Enter' && ev.key !== ' ') return;
-    var target = ev.target && ev.target.closest ? ev.target.closest('[data-profile-url], [data-case-url]') : null;
-    if (!target) return;
-    ev.preventDefault();
-    cphOpenUrlFromData(target);
-  });
 
   // Keep-alive: ping server every 8 min to prevent Render free-tier spindown
   setInterval(function() { fetch('/health').catch(function(){}); }, 8 * 60 * 1000);
