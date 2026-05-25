@@ -350,7 +350,7 @@
       if (!item) return '<div class="card-item"></div>';
       var imgHtml = '';
       var nameHtml = '<div class="card-item-name">' + esc(item.name || '') + '</div>';
-      var fireOverlay = isFire ? '<img class="card-item-fire" src="/public/video/fire_orange.webp?v=3" alt="">' : '';
+      var fireOverlay = isFire ? '<img class="card-item-fire" src="https://csgo.net/public/video/fire_orange.webp?v=3" alt="" onerror="this.style.display=\'none\'">' : '';
       if (item.image) {
         var imgContent = '<img class="card-item-img" src="' + esc(item.image) + '" alt="" onerror="this.style.visibility=\'hidden\'">'
           + (extraCount > 0 ? '<span class="card-extra-badge">+' + extraCount + '</span>' : '');
