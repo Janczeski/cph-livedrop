@@ -218,6 +218,42 @@
     pointer-events: none;
   }
 
+  /* Multi-item from grid */
+  .card-items-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    width: 118px;
+    height: 80px;
+    grid-auto-rows: 1fr;
+  }
+  .card-grid-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.05);
+    min-width: 0;
+    min-height: 0;
+  }
+  .card-grid-cell.card-grid-empty {
+    background: rgba(255,255,255,0.02);
+  }
+  .card-grid-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.45));
+  }
+  .card-grid-more {
+    font-size: 14px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.9);
+    background: rgba(0,0,0,0.45);
+    border-radius: 3px;
+  }
+
   .card-coins-wrap {
     display: flex;
     align-items: center;
@@ -369,6 +405,46 @@
         + '</div>';
     }
 
+    function itemsFromHtml(entry) {
+      var items = (entry.itemsFrom && entry.itemsFrom.length > 0)
+        ? entry.itemsFrom
+        : (entry.itemFrom ? [entry.itemFrom] : []);
+      var totalCount = items.length;
+
+      if (totalCount === 0) return '<div class="card-item"></div>';
+      if (totalCount === 1) return itemHtml(items[0], 0);
+
+      // 2+ items: grid layout
+      // 5+ items: show first 3 + "+X" badge; 2-4: show all (padded to even count)
+      var hasMore = totalCount > 4;
+      var shownItems = hasMore ? items.slice(0, 3) : items;
+      var extraCount = hasMore ? totalCount - 3 : 0;
+
+      var cellsHtml = '';
+      for (var j = 0; j < shownItems.length; j++) {
+        var img = shownItems[j].image || '';
+        cellsHtml += '<div class="card-grid-cell">'
+          + (img ? '<img class="card-grid-img" src="' + esc(img) + '" alt="" onerror="this.style.visibility=\'hidden\'">' : '')
+          + '</div>';
+      }
+      if (hasMore) {
+        cellsHtml += '<div class="card-grid-cell card-grid-more">+' + extraCount + '</div>';
+      } else if (shownItems.length % 2 !== 0) {
+        cellsHtml += '<div class="card-grid-cell card-grid-empty"></div>';
+      }
+
+      var totalPrice = 0;
+      for (var k = 0; k < items.length; k++) {
+        totalPrice += parseFloat(String(items[k].price || '0').replace(/[^0-9.]/g, '')) || 0;
+      }
+      var priceHtml = totalPrice > 0 ? '<div class="card-item-price">$ ' + fmtPrice(String(totalPrice.toFixed(2))) + '</div>' : '';
+
+      return '<div class="card-item">'
+        + '<div class="card-items-grid">' + cellsHtml + '</div>'
+        + priceHtml
+        + '</div>';
+    }
+
     card.innerHTML =
       '<div class="card-header">'
       + '<div class="card-user">'
@@ -378,7 +454,7 @@
       + '<div class="card-right">' + rightHtml + '</div>'
       + '</div>'
       + '<div class="card-body">'
-      + itemHtml(leftItem, entry.extraItemsCount || 0)
+      + (isCase ? itemHtml(leftItem, entry.extraItemsCount || 0) : itemsFromHtml(entry))
       + '<div class="card-divider"></div>'
       + itemHtml(entry.itemTo, 0, pfClass.indexOf('fire') !== -1)
       + '</div>';
