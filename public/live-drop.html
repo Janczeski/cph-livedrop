@@ -364,7 +364,7 @@
       }
       return '<div class="card-item">'
         + imgHtml
-        + (item.linkUrl ? '<a class="card-item-name card-item-link card-open-link" href="' + esc(item.linkUrl) + '" target="_blank" rel="noopener noreferrer" style="display:block;color:inherit;text-decoration:none;">' + esc(item.name || '') + '</a>' : nameHtml)
+        + (item.linkUrl ? '<a class="card-item-name card-item-link card-open-link" href="' + esc(item.linkUrl) + '" target="_blank" rel="noopener noreferrer" style="display:block;text-decoration:none;">' + esc(item.name || '') + '</a>' : nameHtml)
         + (item.price ? '<div class="card-item-price">$ ' + fmtPrice(item.price) + '</div>' : '')
         + '</div>';
     }
@@ -380,7 +380,7 @@
       + '<div class="card-body">'
       + itemHtml(leftItem, entry.extraItemsCount || 0)
       + '<div class="card-divider"></div>'
-      + itemHtml(entry.itemTo, 0, pfClass.indexOf('fire') !== -1);
+      + itemHtml(entry.itemTo, 0, pfClass.indexOf('fire') !== -1)
       + '</div>';
 
     return card;
