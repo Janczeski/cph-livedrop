@@ -28,9 +28,10 @@ function formatChance(raw) {
   return str;
 }
 
-// API: receive a new roll (simplified format — from updated extension)
-app.post('/api/rolls', (req, res) => {
-  const { rollId, userId, type, streamer, username, avatar, itemTo, itemFrom, itemsFrom, extraItemsCount, multiplier, caseName, caseImage, casePrice, pfRoll } = req.body;
+const EXTENSION_KEY = process.env.EXTENSION_API_KEY || 'cph_biks_2025_drops_key';
+
+function handleNewRoll(body, res) {
+  const { rollId, userId, type, username, avatar, itemTo, itemFrom, itemsFrom, extraItemsCount, multiplier, caseName, caseImage, casePrice, pfRoll } = body;
 
   if (!rollId || !userId) {
     return res.status(400).json({ error: 'Missing rollId or userId' });
@@ -59,11 +60,25 @@ app.post('/api/rolls', (req, res) => {
 
   rolls.unshift(entry);
   if (rolls.length > MAX_ROLLS) rolls.length = MAX_ROLLS;
-
   io.emit('new-roll', entry);
-
-  console.log('[API/rolls] ' + entry.type + ' | userId=' + entry.userId + ' | rollId=' + rollId);
+  console.log('[API] ' + entry.type + ' | userId=' + entry.userId + ' | rollId=' + rollId);
   res.json({ ok: true });
+}
+
+// Rota usada pela extensão atual (com x-extension-key)
+app.post('/api/drops/new', (req, res) => {
+  if (req.headers['x-extension-key'] !== EXTENSION_KEY) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  handleNewRoll(req.body, res);
+});
+
+// Alias GET /api/drops → lista de rolls
+app.get('/api/drops', (req, res) => res.json(rolls));
+
+// API: receive a new roll (simplified format — from updated extension)
+app.post('/api/rolls', (req, res) => {
+  handleNewRoll(req.body, res);
 });
 
 // API: receive a new roll from the extension (legacy format)
